@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>日本語ノート</title>
+<style>
+:root{
+  --paper:#FBF4F7; --surface:#FFFFFF; --ink:#332A2E; --muted:#9A9298; --line:#ECE4E8;
+  --accent:#AF6580; --accent-soft:#F1E6EA; --seen:#5E8B6B; --blank:#B45C73;
+  --jp:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"SFMono-Regular",Menlo,Consolas,monospace;
+}
+[data-theme="dark"]{
+  --paper:#101011; --surface:#1A1A1C; --ink:#ECE7E9; --muted:#8A8A8E; --line:#2A2A2E;
+  --accent:#D9A0AE; --accent-soft:#201A1D; --seen:#8FB98F; --blank:#DFA6B2;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;}
+.shell{max-width:640px;margin:0 auto;padding:22px 20px 70px;}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px;}
+.title{font-family:var(--jp);font-size:19px;letter-spacing:.02em;font-weight:600;}
+.head-r{display:flex;align-items:center;gap:12px;}
+.meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right;line-height:1.5;}
+.theme{border:1px solid var(--line);background:var(--surface);color:var(--accent);border-radius:20px;width:34px;height:34px;cursor:pointer;font-size:15px;}
+.tabs{display:flex;gap:2px;margin:16px 0 22px;}
+.tab{flex:1;background:none;border:none;border-bottom:2px solid transparent;padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.tab .jp{font-family:var(--jp);font-size:16px;color:var(--ink);opacity:.5;}
+.tab .rom{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.tab.active{border-bottom-color:var(--accent);}
+.tab.active .jp{opacity:1;}
+.tab.active .rom{color:var(--accent);}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+.btn{font-family:var(--sans);font-size:13px;background:var(--accent);color:var(--paper);border:none;border-radius:7px;padding:9px 14px;cursor:pointer;}
+.btn:disabled{opacity:.45;cursor:default;}
+.btn.ghost{background:none;color:var(--accent);border:1px solid var(--line);}
+.sel,.inp{font-family:var(--sans);font-size:13px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);flex:1;min-width:0;}
+.inp{font-family:var(--jp);}
+.note,.empty{color:var(--muted);font-size:13px;line-height:1.55;margin:8px 0;}
+.warn{font-family:var(--mono);font-size:10px;color:#b07a3f;margin-top:6px;}
+.err{color:#c06a6a;font-size:13px;margin:8px 0;}
+.ok{color:var(--seen);font-family:var(--mono);font-size:11px;margin-top:8px;}
+.block{margin-bottom:26px;}
+.block-h{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.modes,.catbar,.toggle{display:flex;gap:2px;background:var(--accent-soft);border-radius:9px;padding:3px;margin-bottom:14px;flex-wrap:wrap;}
+.modes button,.catbar button,.toggle button{flex:1;border:none;background:none;font-family:var(--jp);font-size:13px;padding:8px 6px;border-radius:7px;color:var(--muted);cursor:pointer;white-space:nowrap;}
+.modes button .s,.catbar button .s{display:block;font-family:var(--mono);font-size:8px;letter-spacing:.05em;text-transform:uppercase;margin-top:2px;}
+.toggle button{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;}
+.modes button.on,.catbar button.on,.toggle button.on{background:var(--surface);color:var(--accent);}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:18px;margin-top:14px;}
+.q-jp{font-family:var(--jp);font-size:21px;line-height:1.7;}
+.q-verb{font-family:var(--jp);font-size:26px;}
+.q-arrow{color:var(--muted);margin:0 10px;}
+.q-form{font-family:var(--mono);font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;}
+.blank{color:var(--blank);font-weight:600;border-bottom:2px solid var(--blank);padding:0 5px;}
+.hint{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:10px;}
+.reveal{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);}
+.reading{font-family:var(--jp);color:var(--muted);font-size:15px;line-height:1.7;}
+.en{font-size:14px;margin-top:6px;line-height:1.5;}
+.answer{font-family:var(--jp);font-size:18px;color:var(--seen);margin-top:4px;}
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;color:var(--accent);background:var(--accent-soft);padding:2px 7px;border-radius:4px;margin-top:10px;}
+.judge{font-family:var(--mono);font-size:12px;margin-top:8px;}
+.judge.good{color:var(--seen);}
+.judge.bad{color:var(--blank);}
+.ta{width:100%;font-family:var(--jp);font-size:14px;padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);resize:vertical;margin:10px 0;}
+.lesson{display:flex;align-items:center;gap:16px;}
+.step{width:38px;height:38px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-size:20px;color:var(--accent);cursor:pointer;}
+.lesson-n{display:flex;flex-direction:column;align-items:center;min-width:70px;}
+.lesson-n span{font-size:22px;font-weight:600;}
+.lesson-n small{font-family:var(--mono);font-size:10px;color:var(--muted);}
+.stats{display:flex;gap:24px;}
+.stats>div{display:flex;flex-direction:column;}
+.stats b{font-size:22px;}
+.stats span{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.dict-in{width:100%;font-family:var(--jp);font-size:18px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);}
+.kana-live{font-family:var(--jp);font-size:13px;color:var(--muted);margin:6px 2px 0;min-height:18px;}
+.entry{border-bottom:1px solid var(--line);padding:14px 0;cursor:pointer;}
+.entry-top{display:flex;align-items:baseline;gap:12px;}
+.entry-k{font-family:var(--jp);font-size:22px;}
+.entry-r{font-family:var(--jp);font-size:14px;color:var(--muted);}
+.entry-pos{font-family:var(--mono);font-size:9px;color:var(--accent);background:var(--accent-soft);padding:2px 6px;border-radius:4px;margin-left:auto;text-transform:uppercase;}
+.entry-en{font-size:14px;margin-top:4px;}
+.detail{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);}
+.detail-h{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:10px 0 5px;}
+.exs .exj{font-family:var(--jp);font-size:16px;}
+.exs .exr{font-family:var(--jp);font-size:12px;color:var(--muted);}
+.exs .exe{font-size:12px;color:var(--muted);}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-family:var(--jp);font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:4px 10px;cursor:pointer;}
+.crows{margin-top:4px;}
+.cgroup{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--seen);margin:14px 0 4px;}
+.crow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 2px;border-bottom:1px solid var(--line);}
+.crow .ck{font-family:var(--mono);font-size:11px;color:var(--muted);}
+.crow .cv{font-family:var(--jp);font-size:17px;text-align:right;}
+.glist{list-style:none;padding:0;margin:0;}
+.glesson{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;margin:18px 0 6px;}
+.gitem{border-bottom:1px solid var(--line);padding:10px 0;cursor:pointer;}
+.gitem-top{display:flex;align-items:baseline;gap:10px;}
+.gp{font-family:var(--jp);font-size:15px;flex:1;}
+.gg{font-size:12px;color:var(--muted);}
+.gt{font-family:var(--mono);font-size:9px;color:var(--seen);}
+.gx{font-size:13px;line-height:1.6;color:var(--ink);margin-top:8px;padding-left:2px;border-left:2px solid var(--accent-soft);padding-left:10px;}
+.out{margin-top:12px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:9px;}
+.out p{font-size:14px;line-height:1.6;margin:0 0 10px;white-space:pre-wrap;}
+.saved{list-style:none;padding:0;margin:0;}
+.saved li{position:relative;padding:12px 26px 12px 0;border-bottom:1px solid var(--line);}
+.saved-t{font-family:var(--jp);font-size:15px;margin-bottom:4px;}
+.saved-b{font-size:13px;color:var(--muted);line-height:1.55;white-space:pre-wrap;}
+.x{position:absolute;top:10px;right:0;border:none;background:none;color:var(--muted);font-size:18px;cursor:pointer;}
+.settings summary{font-family:var(--mono);font-size:11px;color:var(--muted);cursor:pointer;text-transform:uppercase;letter-spacing:.08em;}
+.settings[open] summary{margin-bottom:10px;}
+@media (max-width:480px){.shell{padding:16px 14px 60px;}.q-jp{font-size:19px;}}
+</style>
+</head>
+<body>
+<div class="shell" id="app"></div>
+<script>
+"use strict";
+
+/* ===== GENKI I (3rd ed) grammar, all 12 lessons, with explanations ===== */
+var GENKI={
+ 1:[{id:"1a",p:"XはYです",g:"X is Y",t:"identity",x:"は marks the topic and です is the polite 'to be'. Word order is topic + comment + です, as in わたしはがくせいです (I am a student). Here です just links two nouns and does not change form."},
+    {id:"1b",p:"noun の noun",g:"noun linking",x:"の joins two nouns, usually showing possession or an attribute: わたしのほん (my book), にほんごのせんせい (Japanese teacher). The second noun is the head and the first modifies it."},
+    {id:"1c",p:"〜も",g:"also / too",t:"particle",x:"も replaces は or が to mean 'also/too': わたしもがくせいです (I am a student too). It signals the same thing applies to this item as well."},
+    {id:"1d",p:"〜か",g:"question marker",x:"Add か to the end of a statement to make it a question: がくせいですか (Are you a student?). No word-order change and no question mark are needed."}],
+ 2:[{id:"2a",p:"これ・それ・あれ・どれ",g:"this / that / which",x:"Standalone pronouns by distance: これ (near me), それ (near you), あれ (away from both), どれ (which). They stand alone and do not attach to a noun."},
+    {id:"2b",p:"この・その・あの + 名詞",g:"this ~ / that ~",x:"Same distance system, but placed before a noun: このほん (this book). Use these when you name the noun; use これ/それ/あれ when the noun is understood."},
+    {id:"2c",p:"ここ・そこ・あそこ・どこ",g:"here / there / where",x:"Place words: ここ (here), そこ (there by you), あそこ (over there), どこ (where). Often paired with は or に."},
+    {id:"2d",p:"だれの〜",g:"whose ~",x:"だれの means 'whose': これはだれのかばんですか (Whose bag is this?). It is simply だれ (who) plus の."},
+    {id:"2e",p:"〜じゃないです",g:"is not (noun)",x:"Negative of noun + です: がくせいじゃないです (is not a student). A more formal equivalent is ではありません."},
+    {id:"2f",p:"〜ね・〜よ",g:"final particles",x:"Sentence-final particles that color the tone. ね seeks agreement ('right?'), よ asserts new information to the listener ('you know')."}],
+ 3:[{id:"3a",p:"動詞ます・ません",g:"polite non-past",t:"conj",x:"Polite non-past endings on the verb stem: ます = affirmative, ません = negative. たべます / たべません. Non-past covers both habitual and future."},
+    {id:"3b",p:"〜を",g:"direct object",t:"particle",x:"を marks the direct object of a transitive verb: パンをたべます (eat bread). It is not used with intransitive verbs."},
+    {id:"3c",p:"〜で",g:"place of action",t:"particle",x:"で marks where an action happens: カフェでのみます (drink at a cafe). Contrast with に, which marks a destination or where something exists."},
+    {id:"3d",p:"〜に・〜へ",g:"destination / time",t:"particle",x:"に marks a destination or a specific time (だいがくにいく, さんじに), and へ marks direction toward. Relative time words like きょう take no particle."},
+    {id:"3e",p:"〜ませんか",g:"won't you ~?",t:"pattern",x:"An invitation, 'won't you...?': たべませんか (Won't you eat?). It is softer and more polite than ましょう."},
+    {id:"3f",p:"頻度の副詞",g:"frequency adverbs",x:"Adverbs of frequency: よく (often), ときどき (sometimes), あまり (not much), ぜんぜん (not at all). あまり and ぜんぜん require a negative verb."}],
+ 4:[{id:"4a",p:"〜があります・います",g:"there is",t:"pattern",x:"Existence: あります for inanimate things, います for living things. The thing that exists is marked with が: ねこがいます (there is a cat)."},
+    {id:"4b",p:"場所の言葉",g:"location words",x:"Position nouns used with の: つくえのうえ (on the desk), いえのなか (inside the house). Pattern: [place]の[position]に."},
+    {id:"4c",p:"動詞ました",g:"polite past",t:"conj",x:"Polite past affirmative: replace ます with ました (たべました). The negative past is ませんでした."},
+    {id:"4d",p:"〜でした",g:"past of です",x:"Past of です for nouns and な-adjectives: がくせいでした (was a student). The negative is じゃなかったです."},
+    {id:"4e",p:"〜と",g:"and / with",t:"particle",x:"と joins two nouns as 'and' (ほんとペン) or marks a companion, 'with' (ともだちといく). It only connects nouns, not full sentences."},
+    {id:"4f",p:"たくさん・〜時間",g:"quantity / duration",x:"Words like たくさん (a lot) and time durations (いちじかん) attach directly to the verb with no particle."}],
+ 5:[{id:"5a",p:"い形容詞",g:"i-adjectives",t:"pattern",x:"Adjectives ending in い. Negative drops い and adds くない (たかくない); past is かった (たかかった); past negative くなかった. Irregular: いい becomes よくない / よかった."},
+    {id:"5b",p:"な形容詞",g:"na-adjectives",x:"Adjectives that take な before a noun (しずかなまち). They pattern like nouns: negative じゃないです, past でした. They never take い-adjective endings."},
+    {id:"5c",p:"〜がすき・きらい",g:"like / dislike",t:"pattern",x:"The thing liked or disliked is marked with が, not を: コーヒーがすきです. すき and きらい are な-adjectives, so they conjugate like nouns."},
+    {id:"5d",p:"〜ましょう・ましょうか",g:"let's / shall we",t:"pattern",x:"ましょう = 'let's' (たべましょう). ましょうか proposes or offers to do something ('shall I/we?'). Both build on the verb stem."},
+    {id:"5e",p:"数え方",g:"counting",x:"Number + counter, where the reading often shifts: いっぽん, にほん, さんぼん. Different counters apply to different kinds of objects."}],
+ 6:[{id:"6a",p:"動詞て形",g:"te-form",x:"The connective form behind requests, permission, and linking. Sound changes: う/つ/る→って, む/ぶ/ぬ→んで, く→いて (but 行く is irregular: いって), ぐ→いで, す→して. る-verbs simply add て."},
+    {id:"6b",p:"〜てください",g:"please do ~",t:"pattern",x:"A request, 'please do': みてください (please look). Attach ください to the て-form."},
+    {id:"6c",p:"〜てもいいです",g:"may I ~",x:"Permission, 'may I/you': たべてもいいですか (may I eat?). Formed from the て-form plus もいいです."},
+    {id:"6d",p:"〜てはいけません",g:"must not ~",x:"Prohibition, 'must not': たべてはいけません. て-form plus はいけません; casually ては contracts to ちゃ."},
+    {id:"6e",p:"〜から",g:"because",t:"pattern",x:"'because', placed after the reason clause: たかいですから、かいません (it is expensive, so I will not buy it). The reason comes first."},
+    {id:"6f",p:"二つの動作",g:"joining actions",x:"Use the て-form to chain actions in order: おきて、たべて、いきます (get up, eat, then go). The final verb sets the tense for the whole chain."}],
+ 7:[{id:"7a",p:"〜ている",g:"progressive / state",x:"て-form plus いる shows an ongoing action (たべている, is eating) or a resulting state (しっている, know). Context decides which reading applies."},
+    {id:"7b",p:"〜は〜が長いです",g:"describing features",x:"Describes a feature of something: メアリーさんはかみがながいです (Mary's hair is long). Topic marked with は, the specific feature with が."},
+    {id:"7c",p:"て形で文をつなぐ",g:"joining sentences",x:"The て-form also links adjectives and clauses: やすくて、おいしい (cheap and tasty). For な-adjectives and nouns, use で instead."},
+    {id:"7d",p:"動詞stem + に行く",g:"go in order to ~",x:"Go somewhere to do something: たべにいく (go to eat). Verb stem + に + いく / くる / かえる."},
+    {id:"7e",p:"人の数え方",g:"counting people",x:"Counting people: ひとり (1), ふたり (2), then 〜にん (さんにん). ひとり and ふたり are irregular readings."}],
+ 8:[{id:"8a",p:"短い形（普通形）",g:"plain forms",x:"Casual/plain forms used in speech and before many grammar patterns. Present affirmative is the dictionary form; present negative is the ない-form. Past plain forms come in L9."},
+    {id:"8b",p:"くだけた話し方",g:"informal speech",x:"Informal speech drops です/ます for plain forms and often trims particles: たべる? instead of たべますか. Used with close friends and family."},
+    {id:"8c",p:"〜と思います・言っていました",g:"I think / said",x:"Quote a thought with 〜とおもいます (I think that...) or reported speech with 〜といっていました (said that...). The quoted part goes in plain form before と."},
+    {id:"8d",p:"〜ないでください",g:"please don't ~",x:"'please do not': たべないでください. Attach でください to the ない-form."},
+    {id:"8e",p:"〜のが好きです",g:"like doing ~",x:"Like doing something: たべるのがすきです. The plain-form verb plus の turns the action into a noun so すき can apply."},
+    {id:"8f",p:"が",g:"but",x:"Sentence-linking が means 'but': たかいですが、かいます (it is expensive, but I will buy it). Distinct from the subject-marking が."},
+    {id:"8g",p:"何か・何も",g:"something / nothing",x:"なにか = 'something'; なにも + negative = 'nothing'. だれか/だれも and どこか/どこも follow the same pattern."}],
+ 9:[{id:"9a",p:"過去の短い形",g:"plain past",x:"Plain past. Affirmative uses the た-form (たべた, のんだ) with the same sound changes as the て-form. Negative past is なかった (たべなかった)."},
+    {id:"9b",p:"名詞を修飾する",g:"qualifying nouns",x:"A plain-form verb or clause can modify a noun directly: きのうたべたパン (the bread I ate yesterday). The modifying clause comes before the noun."},
+    {id:"9c",p:"まだ〜ていません",g:"haven't ~ yet",x:"'have not done yet': まだたべていません. Uses ている in the negative to show the action is still pending."},
+    {id:"9d",p:"〜から（普通形）",g:"because (plain)",x:"から (because) also attaches to plain forms in casual or connected speech: たべたから (because I ate)."}],
+ 10:[{id:"10a",p:"〜より〜のほうが",g:"comparing two",x:"Compare two items: AよりBのほうが〜 means B is more 〜 than A. のほうが marks the one that is 'more'."},
+    {id:"10b",p:"〜がいちばん",g:"comparing three+",x:"Superlative among three or more: このなかでこれがいちばんたかい (this is the most expensive of these). いちばん means 'number one / most'."},
+    {id:"10c",p:"形容詞・名詞 + の",g:"~ one",x:"の replaces a repeated noun, like English 'one': たかいの (the expensive one). It avoids saying the noun twice."},
+    {id:"10d",p:"〜つもりだ",g:"intend to ~",x:"State an intention: いくつもりです (I intend to go). Plain-form verb plus つもり."},
+    {id:"10e",p:"形容詞 + なる",g:"become ~",x:"Become: い-adjectives drop い and add くなる (たかくなる); な-adjectives and nouns take に + なる (げんきになる)."},
+    {id:"10f",p:"どこかに・どこにも",g:"somewhere / nowhere",x:"どこかに = 'somewhere'; どこにも + negative = 'nowhere'. The particle attaches after か or も."},
+    {id:"10g",p:"〜で（手段）",g:"by means of",x:"で also marks the means or tool: でんしゃでいく (go by train), はしでたべる (eat with chopsticks)."}],
+ 11:[{id:"11a",p:"〜たい",g:"want to ~",x:"Express wanting to do something: たべたい (want to eat). Verb stem + たい, which then conjugates like an い-adjective (たべたくない). In plain statements it describes only the speaker's own desire."},
+    {id:"11b",p:"〜たり〜たりする",g:"do things like ~",x:"List representative, non-exhaustive actions: たべたり、のんだりする (do things like eat and drink). Built from the た-form plus り."},
+    {id:"11c",p:"〜ことがある",g:"have done ~ before",x:"Talk about experience: いったことがある (have been there before). た-form plus ことがある."},
+    {id:"11d",p:"noun A や noun B",g:"A and B, etc.",x:"や lists nouns non-exhaustively ('and, among others'): ほんやペン. Unlike と, it implies there is more not mentioned."}],
+ 12:[{id:"12a",p:"〜んです",g:"explanation",x:"Adds explanatory nuance ('the thing is...'): いくんです. Plain form + んです, but な-adjectives and nouns use なんです. Very common in questions and giving reasons."},
+    {id:"12b",p:"〜すぎる",g:"too much ~",x:"'too much': たべすぎる (eat too much). Verb stem or adjective stem + すぎる, which conjugates like a る-verb."},
+    {id:"12c",p:"〜ほうがいいです",g:"had better ~",x:"Advice, 'had better': たべたほうがいいです. Affirmative advice normally uses the past (た) form; 'had better not' uses the ない-form."},
+    {id:"12d",p:"〜ので",g:"because",x:"'because', softer and more formal than から: たかいので、かいません. な-adjectives and nouns take な before ので."},
+    {id:"12e",p:"〜なければいけません・なきゃ",g:"must ~",x:"Obligation, 'must': たべなければいけません, formed from the ない-form (drop い, add ければ). なきゃ is the casual contraction."},
+    {id:"12f",p:"〜でしょう",g:"probably ~",x:"Expresses probability, 'probably': あめでしょう (it will probably rain). Said with falling intonation; it can also seek agreement."}]
+};
+
+/* ===== VOCAB ===== */
+var VOCAB=[
+ {kana:"わたし",kanji:"私",en:"I / me",pos:"noun",sub:"person"},
+ {kana:"せんせい",kanji:"先生",en:"teacher",pos:"noun",sub:"role",animate:true},
+ {kana:"がくせい",kanji:"学生",en:"student",pos:"noun",sub:"role",animate:true},
+ {kana:"ともだち",kanji:"友達",en:"friend",pos:"noun",sub:"person",animate:true},
+ {kana:"ねこ",kanji:"猫",en:"cat",pos:"noun",sub:"thing",animate:true},
+ {kana:"ほん",kanji:"本",en:"book",pos:"noun",sub:"thing",cat:"read"},
+ {kana:"みず",kanji:"水",en:"water",pos:"noun",sub:"thing",cat:"drink"},
+ {kana:"コーヒー",kanji:"",en:"coffee",pos:"noun",sub:"thing",cat:"drink"},
+ {kana:"おちゃ",kanji:"お茶",en:"tea",pos:"noun",sub:"thing",cat:"drink"},
+ {kana:"パン",kanji:"",en:"bread",pos:"noun",sub:"thing",cat:"food"},
+ {kana:"ごはん",kanji:"ご飯",en:"rice / a meal",pos:"noun",sub:"thing",cat:"food"},
+ {kana:"えいが",kanji:"映画",en:"movie",pos:"noun",sub:"thing",cat:"watch"},
+ {kana:"おんがく",kanji:"音楽",en:"music",pos:"noun",sub:"thing"},
+ {kana:"てがみ",kanji:"手紙",en:"letter",pos:"noun",sub:"thing",cat:"read"},
+ {kana:"にほんご",kanji:"日本語",en:"Japanese language",pos:"noun",sub:"thing"},
+ {kana:"くるま",kanji:"車",en:"car",pos:"noun",sub:"thing"},
+ {kana:"かばん",kanji:"",en:"bag",pos:"noun",sub:"thing"},
+ {kana:"だいがく",kanji:"大学",en:"university",pos:"noun",sub:"place"},
+ {kana:"としょかん",kanji:"図書館",en:"library",pos:"noun",sub:"place"},
+ {kana:"カフェ",kanji:"",en:"cafe",pos:"noun",sub:"place"},
+ {kana:"いえ",kanji:"家",en:"house / home",pos:"noun",sub:"place"},
+ {kana:"えき",kanji:"駅",en:"station",pos:"noun",sub:"place"},
+ {kana:"きょうしつ",kanji:"教室",en:"classroom",pos:"noun",sub:"place"},
+ {kana:"きょう",kanji:"今日",en:"today",pos:"noun",sub:"time"},
+ {kana:"きのう",kanji:"昨日",en:"yesterday",pos:"noun",sub:"time"},
+ {kana:"まいにち",kanji:"毎日",en:"every day",pos:"noun",sub:"time"},
+ {kana:"たべる",kanji:"食べる",en:"to eat",pos:"verb",vtype:"ichidan",trans:true,objCats:["food"],eng:{base:"eat",past:"ate"}},
+ {kana:"のむ",kanji:"飲む",en:"to drink",pos:"verb",vtype:"godan",trans:true,objCats:["drink"],eng:{base:"drink",past:"drank"}},
+ {kana:"みる",kanji:"見る",en:"to watch / see",pos:"verb",vtype:"ichidan",trans:true,objCats:["watch"],eng:{base:"watch",past:"watched"}},
+ {kana:"よむ",kanji:"読む",en:"to read",pos:"verb",vtype:"godan",trans:true,objCats:["read"],eng:{base:"read",past:"read"}},
+ {kana:"かく",kanji:"書く",en:"to write",pos:"verb",vtype:"godan",trans:true,objCats:["read"],eng:{base:"write",past:"wrote"}},
+ {kana:"かう",kanji:"買う",en:"to buy",pos:"verb",vtype:"godan",trans:true,objCats:["food","drink","watch","read","generic"],eng:{base:"buy",past:"bought"}},
+ {kana:"いく",kanji:"行く",en:"to go",pos:"verb",vtype:"godan",trans:false,motion:true,eng:{base:"go",past:"went"}},
+ {kana:"かえる",kanji:"帰る",en:"to return home",pos:"verb",vtype:"godan",trans:false,motion:true,eng:{base:"return",past:"returned"}},
+ {kana:"する",kanji:"",en:"to do",pos:"verb",vtype:"irregular",trans:true,eng:{base:"do",past:"did"}},
+ {kana:"くる",kanji:"来る",en:"to come",pos:"verb",vtype:"irregular",trans:false,motion:true,eng:{base:"come",past:"came"}},
+ {kana:"たかい",kanji:"高い",en:"expensive / tall",pos:"iadj"},
+ {kana:"おいしい",kanji:"",en:"delicious",pos:"iadj"},
+ {kana:"おおきい",kanji:"大きい",en:"big",pos:"iadj"},
+ {kana:"たのしい",kanji:"楽しい",en:"fun",pos:"iadj"},
+ {kana:"おもしろい",kanji:"面白い",en:"interesting",pos:"iadj"},
+ {kana:"あたらしい",kanji:"新しい",en:"new",pos:"iadj"},
+ {kana:"すき",kanji:"好き",en:"liked / fond of",pos:"naadj"},
+ {kana:"ひま",kanji:"暇",en:"free (not busy)",pos:"naadj"},
+ {kana:"げんき",kanji:"元気",en:"energetic / well",pos:"naadj"},
+ {kana:"しずか",kanji:"静か",en:"quiet",pos:"naadj"},
+ {kana:"きれい",kanji:"",en:"pretty / clean",pos:"naadj"}
+];
+
+/* ===== CONJUGATION ENGINE ===== */
+var KANA={"う":{i:"い",a:"わ",e:"え",o:"お"},"く":{i:"き",a:"か",e:"け",o:"こ"},"ぐ":{i:"ぎ",a:"が",e:"げ",o:"ご"},
+"す":{i:"し",a:"さ",e:"せ",o:"そ"},"つ":{i:"ち",a:"た",e:"て",o:"と"},"ぬ":{i:"に",a:"な",e:"ね",o:"の"},
+"ぶ":{i:"び",a:"ば",e:"べ",o:"ぼ"},"む":{i:"み",a:"ま",e:"め",o:"も"},"る":{i:"り",a:"ら",e:"れ",o:"ろ"}};
+function gStem(v,x){var l=v.slice(-1),m=KANA[l];return m?v.slice(0,-1)+m[x]:null;}
+function gTe(v,pt){var l=v.slice(-1),s=v.slice(0,-1),a=pt?"た":"て",d=pt?"だ":"で";
+ if(v==="いく"||v==="行く")return s+"っ"+a; if("うつる".indexOf(l)>-1)return s+"っ"+a;
+ if("むぶぬ".indexOf(l)>-1)return s+"ん"+d; if(l==="く")return s+"い"+a; if(l==="ぐ")return s+"い"+d;
+ if(l==="す")return s+"し"+a; return v+a;}
+function mStem(v,t){if(t==="ichidan")return v.slice(0,-1);if(t==="irregular"){if(v==="する")return"し";if(v==="くる"||v==="来る")return"き";return v;}return gStem(v,"i");}
+function vForm(v,t,f){
+ if(t==="irregular"){if(v==="する")return{masu:"します",te:"して",ta:"した",nai:"しない"}[f]||v;
+  if(v==="くる"||v==="来る")return{masu:"きます",te:"きて",ta:"きた",nai:"こない"}[f]||v;}
+ if(t==="ichidan"){var s=v.slice(0,-1);return{masu:s+"ます",te:s+"て",ta:s+"た",nai:s+"ない"}[f]||v;}
+ return{masu:gStem(v,"i")+"ます",te:gTe(v,false),ta:gTe(v,true),nai:gStem(v,"a")+"ない"}[f]||v;}
+function conjFull(w,t){w=w.trim();if(!w)return null;
+ if(t==="irregular"){if(w==="する")return irr("し","し","し","しな","でき","しよう","され","させ","しろ","すれ");
+  if(w==="くる"||w==="来る")return irr("き","き","き","こな","こられ","こよう","こられ","こさせ","こい","くれ");return null;}
+ if(t==="ichidan"){var s=w.slice(0,-1);return{"ます形 (polite)":s+"ます","て形 (te)":s+"て","た形 (past plain)":s+"た","ない形 (neg. plain)":s+"ない",
+  "可能 (potential)":s+"られる","意向 (volitional)":s+"よう","受身 (passive)":s+"られる","使役 (causative)":s+"させる","命令 (imperative)":s+"ろ","条件 (ba)":s+"れば"};}
+ return{"ます形 (polite)":gStem(w,"i")+"ます","て形 (te)":gTe(w,false),"た形 (past plain)":gTe(w,true),"ない形 (neg. plain)":gStem(w,"a")+"ない",
+  "可能 (potential)":gStem(w,"e")+"る","意向 (volitional)":gStem(w,"o")+"う","受身 (passive)":gStem(w,"a")+"れる","使役 (causative)":gStem(w,"a")+"せる","命令 (imperative)":gStem(w,"e"),"条件 (ba)":gStem(w,"e")+"ば"};}
+function irr(m,te,ta,nai,p,vo,pa,c,im,co){return{"ます形 (polite)":m+"ます","て形 (te)":te+"て","た形 (past plain)":ta+"た","ない形 (neg. plain)":nai+"い",
+ "可能 (potential)":p+"る","意向 (volitional)":vo,"受身 (passive)":pa+"る","使役 (causative)":c+"る","命令 (imperative)":im,"条件 (ba)":co+"ば"};}
+function guessType(w){w=w.trim();if(w==="する"||/する$/.test(w))return"irregular";if(w==="くる"||w==="来る")return"irregular";
+ var l=w.slice(-1);if(l==="る"){var p=w.slice(-2,-1);if("いきしちにひみりぎじぢびぴえけせてねへめれげぜでべぺ".indexOf(p)>-1)return"ichidan";}return"godan";}
+
+/* target forms for the conjugation drill, unlocked by lesson */
+var FORMS=[
+ {key:"masu",label:"present affirmative (polite)",minL:3,b:function(v){return mStem(v.kana,v.vtype)+"ます";}},
+ {key:"masen",label:"present negative (polite)",minL:3,b:function(v){return mStem(v.kana,v.vtype)+"ません";}},
+ {key:"mashita",label:"past affirmative (polite)",minL:4,b:function(v){return mStem(v.kana,v.vtype)+"ました";}},
+ {key:"masendeshita",label:"past negative (polite)",minL:4,b:function(v){return mStem(v.kana,v.vtype)+"ませんでした";}},
+ {key:"te",label:"te-form",minL:6,b:function(v){return vForm(v.kana,v.vtype,"te");}},
+ {key:"nai",label:"present negative (plain)",minL:8,b:function(v){return vForm(v.kana,v.vtype,"nai");}},
+ {key:"ta",label:"past affirmative (plain)",minL:9,b:function(v){return vForm(v.kana,v.vtype,"ta");}},
+ {key:"nakatta",label:"past negative (plain)",minL:9,b:function(v){var n=vForm(v.kana,v.vtype,"nai");return n.slice(0,-2)+"なかった";}}
+];
+
+/* ===== ROMAJI -> HIRAGANA ===== */
+var RM={"kya":"きゃ","kyu":"きゅ","kyo":"きょ","sha":"しゃ","shu":"しゅ","sho":"しょ","cha":"ちゃ","chu":"ちゅ","cho":"ちょ",
+ "nya":"にゃ","nyu":"にゅ","nyo":"にょ","hya":"ひゃ","hyu":"ひゅ","hyo":"ひょ","mya":"みゃ","myu":"みゅ","myo":"みょ",
+ "rya":"りゃ","ryu":"りゅ","ryo":"りょ","gya":"ぎゃ","gyu":"ぎゅ","gyo":"ぎょ","ja":"じゃ","ju":"じゅ","jo":"じょ",
+ "jya":"じゃ","jyu":"じゅ","jyo":"じょ","bya":"びゃ","byu":"びゅ","byo":"びょ","pya":"ぴゃ","pyu":"ぴゅ","pyo":"ぴょ",
+ "shi":"し","chi":"ち","tsu":"つ","fu":"ふ","ka":"か","ki":"き","ku":"く","ke":"け","ko":"こ",
+ "sa":"さ","su":"す","se":"せ","so":"そ","ta":"た","te":"て","to":"と","na":"な","ni":"に","nu":"ぬ","ne":"ね","no":"の",
+ "ha":"は","hi":"ひ","he":"へ","ho":"ほ","ma":"ま","mi":"み","mu":"む","me":"め","mo":"も","ya":"や","yu":"ゆ","yo":"よ",
+ "ra":"ら","ri":"り","ru":"る","re":"れ","ro":"ろ","wa":"わ","wo":"を","ga":"が","gi":"ぎ","gu":"ぐ","ge":"げ","go":"ご",
+ "za":"ざ","ji":"じ","zu":"ず","ze":"ぜ","zo":"ぞ","da":"だ","de":"で","do":"ど","ba":"ば","bi":"び","bu":"ぶ","be":"べ","bo":"ぼ",
+ "pa":"ぱ","pi":"ぴ","pu":"ぷ","pe":"ぺ","po":"ぽ","a":"あ","i":"い","u":"う","e":"え","o":"お","n":"ん","-":"ー"};
+function romajiToKana(s){s=(s||"").toLowerCase().replace(/[^a-z\-]/g,"");var out="",i=0;
+ while(i<s.length){
+  if(i+1<s.length&&s[i]===s[i+1]&&"kstpgzdbjfrmhy".indexOf(s[i])>-1){out+="っ";i++;continue;}
+  var m=null;for(var len=3;len>=1;len--){var c=s.substr(i,len);if(RM[c]){m=c;break;}}
+  if(m){out+=RM[m];i+=m.length;}else{out+=s[i];i++;}}
+ return out;}
+
+/* ===== STORAGE ===== */
+var STKEY="nihongo-notes:v4",persistOK=true,mem={};
+try{localStorage.setItem("__t","1");localStorage.removeItem("__t");}catch(e){persistOK=false;}
+function load(){try{var r=persistOK?localStorage.getItem(STKEY):mem[STKEY];return r?JSON.parse(r):null;}catch(e){return null;}}
+function save(st){try{var r=JSON.stringify(st);if(persistOK)localStorage.setItem(STKEY,r);else mem[STKEY]=r;}catch(e){}}
+function exportData(){try{var blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="nihongo-notes-backup.json";document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(url);},1000);}catch(e){alert("Export failed.");}}
+function importData(file,cb){var r=new FileReader();r.onload=function(){try{var obj=JSON.parse(r.result);if(obj&&typeof obj==="object"){Object.assign(S,obj);commit();cb(true);}else cb(false);}catch(e){cb(false);}};r.onerror=function(){cb(false);};r.readAsText(file);}
+
+/* ===== AI (optional) ===== */
+async function callAI(key,prompt){
+ var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+  headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+  body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+ if(!r.ok)throw new Error("HTTP "+r.status);
+ var d=await r.json();
+ return (d.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("\n").replace(/```json|```/g,"").trim();}
+
+/* ===== STATE / HELPERS ===== */
+var S=load()||{lesson:6,imported:[],notes:[],apiKey:"",theme:"light",pmode:"grammar",gcat:"random",vdir:"en2jp",readMode:"offline",stats:{conj:{},particle:{},pattern:{},vocab:{}}};
+if(!S.stats)S.stats={conj:{},particle:{},pattern:{},vocab:{}};["conj","particle","pattern","vocab"].forEach(function(k){if(!S.stats[k])S.stats[k]={};});
+["theme","pmode","gcat","vdir","readMode"].forEach(function(k){if(!S[k])S[k]={theme:"light",pmode:"grammar",gcat:"random",vdir:"en2jp",readMode:"offline"}[k];});
+var TAB="practice",cur={grammar:null,vocab:null,reading:null};
+function commit(){save(S);supaPush();}
+function record(type,key,correct){if(!key)return;if(!S.stats[type])S.stats[type]={};var e=S.stats[type][key]||(S.stats[type][key]={c:0,w:0});if(correct)e.c++;else e.w++;commit();}
+var SUPA_KEY="nihongo-supa",_supa=null,_user=null,_pushT=null;
+function supaCfg(){try{return JSON.parse(localStorage.getItem(SUPA_KEY)||"{}");}catch(e){return {};}}
+function saveSupaCfg(c){try{localStorage.setItem(SUPA_KEY,JSON.stringify(c));}catch(e){}}
+async function getSupa(){if(_supa)return _supa;var c=supaCfg();if(!c.url||!c.key)return null;var m=await import("https://esm.sh/@supabase/supabase-js@2");_supa=m.createClient(c.url,c.key);return _supa;}
+async function supaSession(){var s=await getSupa();if(!s)return null;var r=await s.auth.getSession();_user=(r.data&&r.data.session)?r.data.session.user:null;return _user;}
+async function supaPull(){var s=await getSupa();if(!s||!_user)return;var r=await s.from("progress").select("data").eq("user_id",_user.id).maybeSingle();if(r&&r.data&&r.data.data){var remote=r.data.data;remote.theme=S.theme;S=Object.assign(S,remote);save(S);render();}}
+function supaPush(){if(!_user)return;clearTimeout(_pushT);_pushT=setTimeout(function(){getSupa().then(function(s){if(s&&_user)s.from("progress").upsert({user_id:_user.id,data:S,updated_at:new Date().toISOString()});});},1200);}
+function kGrammar(){var a=[];for(var l=1;l<=S.lesson;l++)(GENKI[l]||[]).forEach(function(x){a.push(Object.assign({lesson:l},x));});return a;}
+function kVocab(){var m={};VOCAB.forEach(function(v){m[v.kana]=v;});S.imported.forEach(function(v){if(!m[v.kana])m[v.kana]=v;});return Object.keys(m).map(function(k){return m[k];});}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function nounsBy(kv,sub){return kv.filter(function(v){return v.pos==="noun"&&(!sub||v.sub===sub);});}
+function transVerbs(kv){return kv.filter(function(v){return v.pos==="verb"&&v.trans&&v.vtype!=="irregular";});}
+function allVerbs(kv){return kv.filter(function(v){return v.pos==="verb";});}
+function subjEn(v){return v.kana==="わたし"?"I":cap(v.en);}
+function objectFor(kv,verb){var cats=verb.objCats||["generic"];var built=kv.filter(function(v){return v.pos==="noun"&&!v.imported&&v.sub==="thing";});
+ var pool=built.filter(function(v){return cats.indexOf(v.cat||"generic")>-1;});
+ if(cats.indexOf("generic")>-1)pool=pool.concat(kv.filter(function(v){return v.imported;}));
+ if(!pool.length)pool=built;return pick(pool);}
+
+/* ===== GRAMMAR DRILLS ===== */
+function frame(display,answer,alts,english,hint,tag){return{kind:"cloze",display:display,answer:answer,alts:alts,english:english,hint:hint,tag:tag};}
+
+/* particles */
+var PART={
+ wa:{minL:1,gen:function(kv){var p=pick(nounsBy(kv,"person"));var r=pick(nounsBy(kv,"role"));if(!p||!r||p.kana===r.kana)return null;return frame(p.kana+"＿"+r.kana+"です","は",["は"],cap(p.en==="I / me"?"I":p.en)+" is a "+r.en+".","topic","は topic");}},
+ no:{minL:1,gen:function(kv){var o=pick(nounsBy(kv,"thing"));if(!o)return null;return frame("これはわたし＿"+o.kana+"です","の",["の"],"This is my "+o.en+".","possession","の linking");}},
+ wo:{minL:3,gen:function(kv){var v=pick(transVerbs(kv));if(!v)return null;var o=objectFor(kv,v);if(!o)return null;return frame(o.kana+"＿"+vForm(v.kana,v.vtype,"masu"),"を",["を"],"I "+v.eng.base+" "+o.en+".","object","を object");}},
+ de:{minL:3,gen:function(kv){var pl=pick(nounsBy(kv,"place"));var v=pick(transVerbs(kv));if(!pl||!v)return null;var o=objectFor(kv,v);if(!o)return null;return frame(pl.kana+"＿"+o.kana+"を"+vForm(v.kana,v.vtype,"masu"),"で",["で"],"I "+v.eng.base+" "+o.en+" at the "+pl.en+".","place of action","で place");}},
+ ni:{minL:3,gen:function(kv){var pl=pick(nounsBy(kv,"place"));if(!pl)return null;return frame(pl.kana+"＿いきます","に",["に","へ"],"I go to the "+pl.en+".","destination","に destination");}},
+ to:{minL:4,gen:function(kv){var p=pick(nounsBy(kv,"person").concat(nounsBy(kv,"role")).filter(function(x){return x.kana!=="わたし";}));if(!p)return null;return frame(p.kana+"＿いきます","と",["と"],"I go with "+p.en+".","companion","と with");}},
+ ga_ex:{minL:4,gen:function(kv){var pl=pick(nounsBy(kv,"place"));var o=pick(nounsBy(kv,"thing").filter(function(t){return !t.animate;}));if(!pl||!o)return null;return frame(pl.kana+"に"+o.kana+"＿あります","が",["が"],"There is "+o.en+" at the "+pl.en+".","subject of existence","が existence");}},
+ ga_suki:{minL:5,gen:function(kv){var p=pick(nounsBy(kv,"person"));var o=objectFor(kv,{objCats:["food","drink","watch","read","generic"]});if(!p||!o)return null;return frame(p.kana+"は"+o.kana+"＿すきです","が",["が"],subjEn(p)+" like"+(p.kana==="わたし"?"":"s")+" "+o.en+".","subject of liking","が liking");}},
+ kara:{minL:6,gen:function(kv){var a=pick(kv.filter(function(v){return v.pos==="iadj"&&v.kana!=="おいしい";}));var o=objectFor(kv,{objCats:["food","drink","watch","read","generic"]});if(!a||!o)return null;return frame("この"+o.kana+"は"+a.kana+"です＿、かいます","から",["から"],"This "+o.en+" is "+a.en+", so I will buy it.","reason","から because");}}
+};
+function genParticle(kv){var av=Object.keys(PART).filter(function(k){return PART[k].minL<=S.lesson;});
+ for(var i=0;i<8;i++){var it=PART[pick(av)].gen(kv);if(it){it.kind="particle";return it;}}return{error:"Not enough vocab for a particle drill yet."};}
+
+/* patterns (grammar-point cloze) */
+var PAT={
+ identity:function(kv){var p=pick(nounsBy(kv,"person"));var r=pick(nounsBy(kv,"role"));if(!p||!r||p.kana===r.kana)return null;return frame(p.kana+"は"+r.kana+"＿",  "です",["です"],subjEn(p)+" is a "+r.en+".","copula","XはYです");},
+ masenka:function(kv){var v=pick(transVerbs(kv));if(!v)return null;var o=objectFor(kv,v);if(!o)return null;return frame("いっしょに"+o.kana+"を"+mStem(v.kana,v.vtype)+"＿","ませんか",["ませんか"],"Won't you "+v.eng.base+" "+o.en+" together?","invitation","〜ませんか");},
+ mashou:function(kv){var v=pick(transVerbs(kv));if(!v)return null;var o=objectFor(kv,v);if(!o)return null;return frame(o.kana+"を"+mStem(v.kana,v.vtype)+"＿","ましょう",["ましょう"],"Let's "+v.eng.base+" "+o.en+".","suggestion","〜ましょう");},
+ tekudasai:function(kv){var v=pick(transVerbs(kv));if(!v)return null;var o=objectFor(kv,v);if(!o)return null;return frame(o.kana+"を"+vForm(v.kana,v.vtype,"te")+"＿","ください",["ください"],"Please "+v.eng.base+" "+o.en+".","request","〜てください");},
+ arimasu:function(kv){var pl=pick(nounsBy(kv,"place"));var o=pick(nounsBy(kv,"thing").filter(function(t){return !t.animate;}));if(!pl||!o)return null;return frame(pl.kana+"に"+o.kana+"が＿","あります",["あります"],"There is "+o.en+" at the "+pl.en+".","existence","〜があります");},
+ iadj:function(kv){var a=pick(kv.filter(function(v){return v.pos==="iadj"&&v.kana!=="おいしい";}));var o=pick(nounsBy(kv,"thing"));if(!a||!o)return null;return frame("この"+o.kana+"は＿です",a.kana,[a.kana,a.kanji].filter(Boolean),"This "+o.en+" is "+a.en+".","i-adjective","い形容詞 ("+a.en+")");}
+};
+function genPattern(kv){var PATL={identity:1,masenka:3,arimasu:4,mashou:5,iadj:5,tekudasai:6};var keys=Object.keys(PAT).filter(function(k){return (PATL[k]||1)<=S.lesson;});if(!keys.length)return{error:"No pattern unlocked at this lesson yet."};for(var i=0;i<8;i++){var it=PAT[pick(keys)](kv);if(it)return it;}return{error:"Not enough vocab for a pattern drill yet."};}
+
+/* conjugation drill */
+function answerAlts(v,f){var out=[f.b(v)];if(v.kanji)out.push(f.b({kana:v.kanji,vtype:v.vtype}));if(v.kana==="くる")out.push(f.b(v).replace(/^[きこ]/,"来"));return out.filter(function(x,i,a){return a.indexOf(x)===i;});}
+function genConj(kv){var forms=FORMS.filter(function(f){return f.minL<=S.lesson;});var verbs=allVerbs(kv);
+ if(!forms.length||!verbs.length)return{error:"No conjugation forms unlocked yet."};
+ var v=pick(verbs),f=pick(forms);var alts=answerAlts(v,f);
+ return{kind:"conj",verb:(v.kanji||v.kana),verbKana:v.kana,formLabel:f.label,answer:alts[0],alts:alts,english:v.en,hint:v.vtype+" verb"};}
+
+function genGrammar(kv,cat){
+ if(cat==="particle")return genParticle(kv);
+ if(cat==="conj")return genConj(kv);
+ if(cat==="pattern")return genPattern(kv);
+ var r=Math.random();if(r<0.34)return genParticle(kv);if(r<0.67)return genConj(kv);return genPattern(kv);
+}
+
+/* ===== READING ===== */
+function disp(v){return v.kanji?v.kanji:v.kana;}
+var SENT={
+ masu:function(kv){var v=pick(transVerbs(kv));if(!v)return null;var o=objectFor(kv,v);if(!o)return null;return{k:disp(o)+"を"+vForm(v.kana,v.vtype,"masu"),r:o.kana+"を"+vForm(v.kana,v.vtype,"masu"),e:"I "+v.eng.base+" "+o.en+"."};},
+ suki:function(kv){var p=pick(nounsBy(kv,"person"));var o=objectFor(kv,{objCats:["food","drink","watch","read","generic"]});if(!p||!o)return null;return{k:disp(p)+"は"+disp(o)+"が すきです",r:p.kana+"は"+o.kana+"が すきです",e:subjEn(p)+" like"+(p.kana==="わたし"?"":"s")+" "+o.en+"."};},
+ iadj:function(kv){var a=pick(kv.filter(function(v){return v.pos==="iadj"&&v.kana!=="おいしい";}));var o=pick(nounsBy(kv,"thing"));if(!a||!o)return null;return{k:"この"+disp(o)+"は"+disp(a)+"です",r:"この"+o.kana+"は"+a.kana+"です",e:"This "+o.en+" is "+a.en+"."};},
+ iku:function(kv){var pl=pick(nounsBy(kv,"place"));if(!pl)return null;return{k:disp(pl)+"に いきます",r:pl.kana+"に いきます",e:"I go to the "+pl.en+"."};},
+ mashita:function(kv){var v=pick(transVerbs(kv));if(!v)return null;var o=objectFor(kv,v);if(!o)return null;return{k:"きのう"+disp(o)+"を"+mStem(v.kana,v.vtype)+"ました",r:"きのう"+o.kana+"を"+mStem(v.kana,v.vtype)+"ました",e:"Yesterday I "+v.eng.past+" "+o.en+"."};}
+};
+function genReadingOffline(kv){var avail=Object.keys(SENT);var n=2+Math.floor(Math.random()*2),ks=[],rs=[],es=[];
+ for(var i=0;i<12&&ks.length<n;i++){var s=SENT[pick(avail)](kv);if(s){ks.push(s.k);rs.push(s.r);es.push(s.e);}}
+ if(!ks.length)return{error:"Not enough vocab yet. Import a deck in 進度."};
+ return{japanese:ks.join("。")+"。",reading:rs.join("。")+"。",english:es.join(" ")};}
+
+/* ===== DICTIONARY HELPERS ===== */
+function relatedFor(v,all){var pool=v.pos==="noun"?all.filter(function(x){return x.pos==="noun"&&x.sub===v.sub&&x.kana!==v.kana;}):all.filter(function(x){return x.pos===v.pos&&x.kana!==v.kana;});return pool.slice(0,6);}
+function exampleFor(v){
+ if(v.pos==="verb"){var m=mStem(v.kana,v.vtype)+"ます";return{k:"まいにち"+m,r:"まいにち"+m,e:"I "+v.eng.base+" every day."};}
+ if(v.pos==="iadj")return{k:"この本は"+disp(v)+"です",r:"このほんは"+v.kana+"です",e:"This book is "+v.en+"."};
+ if(v.pos==="naadj")return{k:"この家は"+disp(v)+"です",r:"このいえは"+v.kana+"です",e:"This house is "+v.en+"."};
+ if(v.sub==="place")return{k:disp(v)+"に いきます",r:v.kana+"に いきます",e:"I go to the "+v.en+"."};
+ return{k:disp(v)+"が すきです",r:v.kana+"が すきです",e:"I like "+v.en+"."};
+}
+
+/* ===== RENDER ===== */
+function el(h){var d=document.createElement("div");d.innerHTML=h.trim();return d.firstChild;}
+function esc(s){return(s==null?"":String(s)).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+function render(){
+ document.documentElement.setAttribute("data-theme",S.theme);
+ var app=document.getElementById("app");var kg=kGrammar(),kv=kVocab();app.innerHTML="";
+ var head=el('<header class="head"><div class="title">日本語ノート</div><div class="head-r"><div class="meta">Genki L'+S.lesson+'<br>'+kg.length+' grammar · '+kv.length+' vocab</div></div></header>');
+ var th=el('<button class="theme">'+(S.theme==="dark"?"☀":"❀")+'</button>');
+ th.onclick=function(){S.theme=S.theme==="dark"?"light":"dark";commit();render();};
+ head.querySelector(".head-r").appendChild(th);app.appendChild(head);
+ var tabs=el('<nav class="tabs"></nav>');
+ [["practice","練習","practice"],["progress","進度","progress"],["reference","辞書","dictionary"],["stats","統計","stats"],["notes","メモ","notes"]].forEach(function(t){
+  var b=el('<button class="tab'+(TAB===t[0]?" active":"")+'"><span class="jp">'+t[1]+'</span><span class="rom">'+t[2]+'</span></button>');
+  b.onclick=function(){TAB=t[0];render();};tabs.appendChild(b);});
+ app.appendChild(tabs);var main=el('<main></main>');app.appendChild(main);
+ if(TAB==="practice")rPractice(main,kg,kv);
+ if(TAB==="progress")rProgress(main,kg,kv);
+ if(TAB==="reference")rDict(main,kv,kg);
+ if(TAB==="stats")renderStats(main);
+ if(TAB==="notes")rNotes(main);
+ if(!persistOK)app.appendChild(el('<div class="warn">Preview mode: progress won\'t be saved here. Download the file and open it in Chrome to keep your data.</div>'));
+}
+
+function rPractice(main,kg,kv){
+ var sec=el('<section></section>');
+ var modes=el('<div class="modes"></div>');
+ [["grammar","文法","grammar"],["vocab","語彙","vocab"],["reading","読解","reading"]].forEach(function(m){
+  var b=el('<button class="'+(S.pmode===m[0]?"on":"")+'">'+m[1]+'<span class="s">'+m[2]+'</span></button>');
+  b.onclick=function(){S.pmode=m[0];commit();render();};modes.appendChild(b);});
+ sec.appendChild(modes);
+ if(S.pmode==="grammar")rGrammarMode(sec,kv);
+ if(S.pmode==="vocab")rVocabMode(sec,kv);
+ if(S.pmode==="reading")rReadingMode(sec,kg,kv);
+ main.appendChild(sec);
+}
+
+function rGrammarMode(sec,kv){
+ var cats=[["random","ランダム","random"],["particle","助詞","particles"],["conj","活用","conjugation"],["pattern","文型","patterns"]];
+ var bar=el('<div class="catbar"></div>');
+ cats.forEach(function(c){var b=el('<button class="'+(S.gcat===c[0]?"on":"")+'">'+c[1]+'<span class="s">'+c[2]+'</span></button>');b.onclick=function(){S.gcat=c[0];commit();render();};bar.appendChild(b);});
+ sec.appendChild(bar);
+ var btn=el('<button class="btn">出題 · new</button>');sec.appendChild(btn);
+ var box=el('<div></div>');sec.appendChild(box);
+ function draw(){box.innerHTML="";var it=cur.grammar;
+  if(!it){box.appendChild(el('<p class="empty">Random mixes particles, conjugation, and patterns. Or pick one lane. Conjugation forms and grammar unlock as your Genki lesson climbs.</p>'));return;}
+  if(it.error){box.appendChild(el('<div class="err">'+esc(it.error)+'</div>'));return;}
+  var card=el('<div class="card"></div>');
+  if(it.kind==="conj"){
+   card.appendChild(el('<div><span class="q-verb">'+esc(it.verb)+'</span><span class="q-arrow">→</span></div>'));
+   card.appendChild(el('<div class="q-form">'+esc(it.formLabel)+'</div>'));
+   card.appendChild(el('<div class="hint">'+esc(it.hint)+' · '+esc(it.english)+'</div>'));
+  } else {
+   card.appendChild(el('<div class="q-jp">'+it.display.replace("＿",'<span class="blank">＿</span>')+'</div>'));
+   if(it.kind!=="particle") card.appendChild(el('<div class="hint">'+esc(it.hint)+'</div>'));
+  }
+  var arow=el('<div class="row" style="margin-top:12px"></div>');
+  var ai=el('<input class="inp" placeholder="type the answer">');var ab=el('<button class="btn ghost">確認 · check</button>');
+  arow.appendChild(ai);arow.appendChild(ab);card.appendChild(arow);
+  var jb=el('<div></div>');card.appendChild(jb);var rev=el('<div></div>');card.appendChild(rev);
+  ab.onclick=function(){var v=ai.value.trim();var ok=it.alts.indexOf(v)>-1;if(!it._graded){it._graded=true;var ty=it.kind==="conj"?"conj":(it.kind==="particle"?"particle":"pattern");var ky=it.kind==="conj"?it.formLabel:(it.kind==="particle"?it.answer:it.tag);record(ty,ky,ok);}jb.innerHTML='<div class="judge '+(ok?"good":"bad")+'">'+(ok?"○ correct":"× not quite")+'</div>';};
+  var rb=el('<button class="btn ghost" style="margin-top:12px">答え · reveal</button>');
+  rb.onclick=function(){var full=it.kind==="conj"?it.verb+" → "+it.answer:it.display.replace("＿",it.answer);
+   rev.innerHTML='<div class="reveal"><div class="answer">'+esc(full)+'</div><div class="en">'+esc(it.english)+'</div><div class="tag">'+esc(it.kind==="conj"?it.formLabel:it.tag)+'</div></div>';};
+  card.appendChild(rb);box.appendChild(card);}
+ btn.onclick=function(){cur.grammar=genGrammar(kv,S.gcat);draw();};
+ draw();
+}
+
+function rVocabMode(sec,kv){
+ var dirs=[["en2jp","英→日","en to jp"],["jp2en","日→英","jp to en"],["random","ランダム","random"]];
+ var bar=el('<div class="catbar"></div>');
+ dirs.forEach(function(d){var b=el('<button class="'+(S.vdir===d[0]?"on":"")+'">'+d[1]+'<span class="s">'+d[2]+'</span></button>');b.onclick=function(){S.vdir=d[0];commit();render();};bar.appendChild(b);});
+ sec.appendChild(bar);
+ sec.appendChild(el('<p class="note">Recall drill, imported deck first then the built-in set. Grade yourself on reveal so the stats page can flag weak words.</p>'));
+ var btn=el('<button class="btn">出題 · new word</button>');sec.appendChild(btn);
+ var box=el('<div></div>');sec.appendChild(box);
+ function next(){var im=kv.filter(function(v){return v.imported;});var pool=im.length?im.concat(VOCAB):kv;var v=pick(pool);var dir=S.vdir==="random"?(Math.random()<0.5?"en2jp":"jp2en"):S.vdir;cur.vocab={v:v,dir:dir,graded:false};draw();}
+ function grade(ok){if(cur.vocab&&!cur.vocab.graded){record("vocab",cur.vocab.v.kana,ok);cur.vocab.graded=true;}next();}
+ function draw(){box.innerHTML="";var it=cur.vocab;if(!it)return;var card=el('<div class="card"></div>');
+  var front=it.dir==="jp2en"?esc(it.v.kanji||it.v.kana):esc(it.v.en||"(no meaning stored)");
+  var hintTxt=it.dir==="jp2en"?"recall the meaning":"recall the Japanese";
+  card.appendChild(el('<div class="q-jp">'+front+'</div>'));
+  card.appendChild(el('<div class="hint">'+esc(it.v.pos)+' · '+hintTxt+'</div>'));
+  var rev=el('<div></div>');var rb=el('<button class="btn ghost" style="margin-top:14px">答え · reveal</button>');
+  rb.onclick=function(){var back=it.dir==="jp2en"?('<div class="reading">'+esc(it.v.kana)+'</div><div class="answer">'+esc(it.v.en||"(no meaning stored)")+'</div>'):('<div class="answer">'+esc(it.v.kanji?it.v.kanji+"（"+it.v.kana+"）":it.v.kana)+'</div>');
+   rev.innerHTML='<div class="reveal">'+back+'</div>';
+   var gr=el('<div class="row" style="margin-top:10px"></div>');var gk=el('<button class="btn ghost">○ 知ってた</button>');var gm=el('<button class="btn ghost">× 忘れた</button>');
+   gk.onclick=function(){grade(true);};gm.onclick=function(){grade(false);};gr.appendChild(gk);gr.appendChild(gm);rev.appendChild(gr);};
+  card.appendChild(rb);card.appendChild(rev);box.appendChild(card);}
+ btn.onclick=next;
+ draw();
+}
+
+function rReadingMode(sec,kg,kv){
+ var tog=el('<div class="toggle" style="max-width:280px"></div>');
+ var off=el('<button class="'+(S.readMode==="offline"?"on":"")+'">オフライン</button>');
+ var aib=el('<button class="'+(S.readMode==="ai"?"on":"")+'">AI · natural</button>');
+ off.onclick=function(){S.readMode="offline";commit();render();};
+ aib.onclick=function(){if(!S.apiKey){alert("Add an API key in 進度 → settings to use AI reading. Offline mode needs no setup.");return;}S.readMode="ai";commit();render();};
+ tog.appendChild(off);tog.appendChild(aib);sec.appendChild(tog);
+ var btn=el('<button class="btn">'+(S.readMode==="ai"?"生成 · generate":"文章 · new passage")+'</button>');sec.appendChild(btn);
+ var box=el('<div></div>');sec.appendChild(box);
+ function draw(){box.innerHTML="";var it=cur.reading;
+  if(!it){box.appendChild(el('<p class="empty">A short passage mixing your grammar and vocab. Write your translation, then reveal the readings and the English.</p>'));return;}
+  if(it.error){box.appendChild(el('<div class="err">'+esc(it.error)+'</div>'));return;}
+  var card=el('<div class="card"></div>');
+  card.appendChild(el('<div class="q-jp">'+esc(it.japanese)+'</div>'));
+  card.appendChild(el('<textarea class="ta" rows="3" placeholder="your translation attempt"></textarea>'));
+  var rev=el('<div></div>');var rb=el('<button class="btn ghost">答え · reveal furigana + english</button>');
+  rb.onclick=function(){rev.innerHTML='<div class="reveal"><div class="reading">'+esc(it.reading)+'</div><div class="en">'+esc(it.english)+'</div></div>';};
+  card.appendChild(rb);card.appendChild(rev);box.appendChild(card);}
+ btn.onclick=async function(){
+  if(S.readMode==="offline"){cur.reading=genReadingOffline(kv);draw();return;}
+  btn.disabled=true;btn.textContent="…";
+  try{var vlist=kv.map(function(v){return v.kana+" ("+v.en+")";}).join(", ");var glist=kg.map(function(g){return g.p+" — "+g.g;}).join("; ");
+   var prompt="Write a SHORT natural Japanese reading passage of 2-3 sentences for a Genki lesson "+S.lesson+" learner. Use ONLY words from ALLOWED VOCAB (particles and normal conjugations are fine) and only ALLOWED GRAMMAR; introduce no other content words. It should read as connected text, not a quiz. Respond JSON only, no markdown: {\"japanese\":\"（kanji where natural）\",\"reading\":\"（all hiragana）\",\"english\":\"\"}\n\nALLOWED VOCAB: "+vlist+"\nALLOWED GRAMMAR: "+glist;
+   cur.reading=JSON.parse(await callAI(S.apiKey,prompt));draw();
+  }catch(e){cur.reading={error:"AI request failed ("+e.message+"). Check the key or use offline mode."};draw();}
+  btn.disabled=false;btn.textContent="生成 · generate";};
+ draw();
+}
+
+function rProgress(main,kg,kv){
+ var sec=el('<section></section>');
+ var b1=el('<div class="block"><div class="block-h">Genki 進度</div></div>');
+ var les=el('<div class="lesson"></div>');var mn=el('<button class="step">−</button>'),pl=el('<button class="step">+</button>');
+ var bx=el('<div class="lesson-n"><span>L'+S.lesson+'</span><small>Genki I · lesson '+S.lesson+' of 12</small></div>');
+ mn.onclick=function(){S.lesson=Math.max(1,S.lesson-1);commit();render();};
+ pl.onclick=function(){S.lesson=Math.min(12,S.lesson+1);commit();render();};
+ les.appendChild(mn);les.appendChild(bx);les.appendChild(pl);b1.appendChild(les);
+ b1.appendChild(el('<p class="note">Unlocks grammar and conjugation forms through lesson '+S.lesson+' across the app.</p>'));sec.appendChild(b1);
+ var b2=el('<div class="block"><div class="block-h">Import vocab (Anki / Bunpro export)</div></div>');
+ b2.appendChild(el('<p class="note">Paste CSV or TSV: word, reading, meaning. Anki: Browse → select → Notes → Export → Notes in Plain Text. Bunpro: the Bunpro Exporter userscript saves a CSV. Imported words are used first in every drill.</p>'));
+ var ta=el('<textarea class="ta" rows="5" placeholder="たべもの&#9;たべもの&#9;food&#10;せんぱい&#9;せんぱい&#9;senior"></textarea>');b2.appendChild(ta);
+ var row=el('<div class="row"></div>');var imp=el('<button class="btn">取り込む · import</button>');row.appendChild(imp);
+ if(S.imported.length){var clr=el('<button class="btn ghost">clear imports</button>');clr.onclick=function(){S.imported=[];commit();render();};row.appendChild(clr);}
+ b2.appendChild(row);var msg=el('<div></div>');b2.appendChild(msg);
+ imp.onclick=function(){var rows=ta.value.trim().split(/\r?\n/),add=[],seen={};S.imported.forEach(function(v){seen[v.kana]=1;});
+  rows.forEach(function(r){if(!r||r.charAt(0)==="#")return;var c=r.indexOf("\t")>-1?r.split("\t"):r.split(",");var k=(c[0]||"").trim().replace(/^"|"$/g,"");if(!k||k.indexOf("<")>-1||k.length>30||seen[k])return;seen[k]=1;add.push({kana:k,kanji:"",reading:(c[1]||k).trim(),en:(c[2]||"").trim(),pos:"noun",sub:"thing",imported:true});});
+  if(!add.length){msg.innerHTML='<div class="err">No new rows found.</div>';return;}
+  S.imported=S.imported.concat(add);commit();msg.innerHTML='<div class="ok">Imported '+add.length+' new words.</div>';ta.value="";setTimeout(render,700);};
+ sec.appendChild(b2);
+ var b3=el('<div class="block"><div class="block-h">Known set</div></div>');
+ b3.appendChild(el('<div class="stats"><div><b>'+kg.length+'</b><span>grammar</span></div><div><b>'+kv.length+'</b><span>vocab</span></div><div><b>'+S.imported.length+'</b><span>imported</span></div></div>'));sec.appendChild(b3);
+ var b4=el('<div class="block"></div>');
+ var det=el('<details class="settings"><summary>optional · AI features + key</summary></details>');
+ det.appendChild(el('<p class="note">Everything works offline with no account. An Anthropic API key (console.anthropic.com) unlocks natural AI reading passages, auto-mnemonics, and dictionary lookups for words outside your set. Stored only on this device; small cost per use. Leave blank to stay offline.</p>'));
+ var kr=el('<div class="row"></div>');var kin=el('<input class="inp" type="password" placeholder="sk-ant-… (optional)" style="font-family:var(--mono)">');kin.value=S.apiKey||"";
+ var ks=el('<button class="btn ghost">save key</button>');ks.onclick=function(){S.apiKey=kin.value.trim();if(!S.apiKey)S.readMode="offline";commit();render();};
+ kr.appendChild(kin);kr.appendChild(ks);det.appendChild(kr);b4.appendChild(det);sec.appendChild(b4);
+ var b5=el('<div class="block"></div>');
+ var sbd=el('<details class="settings"><summary>optional · cross-device sync (Supabase)</summary></details>');
+ sbd.appendChild(el('<p class="note">Sync progress across devices. Create a free Supabase project, run the one-time setup SQL, then paste your Project URL and publishable key and log in. Lesson, imports, notes, and stats then follow you everywhere. Only the public key is needed, never a secret.</p>'));
+ var sc=supaCfg();
+ var su1=el('<input class="inp" placeholder="Project URL (https://xxxxx.supabase.co)" style="font-family:var(--mono)">');su1.value=sc.url||"";
+ var su2=el('<input class="inp" placeholder="Publishable key (sb_publishable_...)" style="font-family:var(--mono);margin-top:6px">');su2.value=sc.key||"";
+ var scs=el('<button class="btn ghost" style="margin-top:6px">save connection</button>');
+ scs.onclick=function(){saveSupaCfg({url:su1.value.trim(),key:su2.value.trim()});_supa=null;render();};
+ sbd.appendChild(su1);sbd.appendChild(su2);sbd.appendChild(scs);
+ if(sc.url&&sc.key){
+  var sem=el('<input class="inp" placeholder="email" style="margin-top:10px">');
+  var spw=el('<input class="inp" type="password" placeholder="password" style="margin-top:6px">');
+  var sar=el('<div class="row" style="margin-top:6px"></div>');
+  var ssu=el('<button class="btn ghost">sign up</button>');var sli=el('<button class="btn">log in</button>');
+  var sst=el('<div class="ok" style="margin-top:8px">checking session…</div>');
+  ssu.onclick=async function(){sst.textContent="…";try{var s2=await getSupa();var r=await s2.auth.signUp({email:sem.value.trim(),password:spw.value});sst.textContent=r.error?("× "+r.error.message):"✓ account created — now press log in";}catch(e){sst.textContent="× "+e.message;}};
+  sli.onclick=async function(){sst.textContent="…";try{var s2=await getSupa();var r=await s2.auth.signInWithPassword({email:sem.value.trim(),password:spw.value});if(r.error){sst.textContent="× "+r.error.message;return;}_user=r.data.user;sst.textContent="✓ logged in — syncing";await supaPull();}catch(e){sst.textContent="× "+e.message;}};
+  sar.appendChild(ssu);sar.appendChild(sli);sbd.appendChild(sem);sbd.appendChild(spw);sbd.appendChild(sar);sbd.appendChild(sst);
+  supaSession().then(function(u){if(u){sst.textContent="✓ logged in as "+u.email;var slo=el('<button class="btn ghost" style="margin-top:8px">log out</button>');slo.onclick=async function(){var s2=await getSupa();await s2.auth.signOut();_user=null;render();};sbd.appendChild(slo);}else{sst.textContent="not logged in";}});
+ }
+ b5.appendChild(sbd);sec.appendChild(b5);
+ main.appendChild(sec);
+}
+
+function renderStats(main){
+ var sec=el('<section></section>');
+ var cats=[["conj","活用 conjugation"],["particle","助詞 particles"],["pattern","文型 patterns"],["vocab","語彙 vocab"]];
+ var any=false;
+ cats.forEach(function(c){
+  var data=S.stats[c[0]]||{};var keys=Object.keys(data);
+  var block=el('<div class="block"><div class="block-h">'+c[1]+'</div></div>');
+  if(!keys.length){block.appendChild(el('<p class="note">No attempts yet.</p>'));sec.appendChild(block);return;}
+  any=true;var tot=0,cor=0;keys.forEach(function(k){tot+=data[k].c+data[k].w;cor+=data[k].c;});
+  block.appendChild(el('<div class="stats" style="margin-bottom:12px"><div><b>'+Math.round(100*cor/Math.max(1,tot))+'%</b><span>accuracy</span></div><div><b>'+tot+'</b><span>attempts</span></div></div>'));
+  var rows=keys.map(function(k){var e=data[k];var n=e.c+e.w;return {k:k,n:n,acc:e.c/n,w:e.w};});
+  rows=rows.filter(function(r){return r.w>0;}).sort(function(a,b){return a.acc-b.acc||b.w-a.w;}).slice(0,6);
+  if(rows.length){block.appendChild(el('<div class="hint" style="margin-bottom:6px">weakest points</div>'));
+   var ul=el('<ul class="glist"></ul>');
+   rows.forEach(function(r){ul.appendChild(el('<li><span class="gp">'+esc(r.k)+'</span><span class="gg">'+Math.round(100*r.acc)+'% · '+r.w+' missed</span></li>'));});
+   block.appendChild(ul);
+  } else { block.appendChild(el('<p class="note">All correct so far.</p>')); }
+  sec.appendChild(block);
+ });
+ if(!any) sec.appendChild(el('<p class="note">Do some grammar or vocab drills and your accuracy and weakest points show up here.</p>'));
+ var rst=el('<button class="btn ghost" style="margin-top:8px">reset stats</button>');
+ rst.onclick=function(){if(confirm("Clear all stats?")){S.stats={conj:{},particle:{},pattern:{},vocab:{}};commit();render();}};
+ sec.appendChild(rst);main.appendChild(sec);
+}
+
+function conjStd(word,vtype){var w=(word||"").trim();if(!w)return null;var t=vtype||guessType(w);var f;
+ if(t==="irregular"){
+  if(w==="する")f={masu:"します",masen:"しません",mashita:"しました",masenP:"しませんでした",dict:"する",nai:"しない",ta:"した",nakatta:"しなかった",te:"して",mashou:"しましょう",vol:"しよう",pot:"できる",ba:"すれば",tara:"したら",pass:"される",caus:"させる",imp:"しろ",tai:"したい"};
+  else if(w==="くる"||w==="来る")f={masu:"きます",masen:"きません",mashita:"きました",masenP:"きませんでした",dict:w,nai:"こない",ta:"きた",nakatta:"こなかった",te:"きて",mashou:"きましょう",vol:"こよう",pot:"こられる",ba:"くれば",tara:"きたら",pass:"こられる",caus:"こさせる",imp:"こい",tai:"きたい"};
+  else return null;
+ } else if(t==="ichidan"){var s=w.slice(0,-1);
+  f={masu:s+"ます",masen:s+"ません",mashita:s+"ました",masenP:s+"ませんでした",dict:w,nai:s+"ない",ta:s+"た",nakatta:s+"なかった",te:s+"て",mashou:s+"ましょう",vol:s+"よう",pot:s+"られる",ba:s+"れば",tara:s+"たら",pass:s+"られる",caus:s+"させる",imp:s+"ろ",tai:s+"たい"};
+ } else {
+  f={masu:gStem(w,"i")+"ます",masen:gStem(w,"i")+"ません",mashita:gStem(w,"i")+"ました",masenP:gStem(w,"i")+"ませんでした",dict:w,nai:gStem(w,"a")+"ない",ta:gTe(w,true),nakatta:gStem(w,"a")+"なかった",te:gTe(w,false),mashou:gStem(w,"i")+"ましょう",vol:gStem(w,"o")+"う",pot:gStem(w,"e")+"る",ba:gStem(w,"e")+"ば",tara:gTe(w,true)+"ら",pass:gStem(w,"a")+"れる",caus:gStem(w,"a")+"せる",imp:gStem(w,"e"),tai:gStem(w,"i")+"たい"};
+ }
+ return [{title:"polite ます",rows:[["present",f.masu],["negative",f.masen],["past",f.mashita],["past neg.",f.masenP]]},
+  {title:"plain \u666e\u901a",rows:[["present (dict.)",f.dict],["negative",f.nai],["past",f.ta],["past neg.",f.nakatta]]},
+  {title:"\u3066-form",rows:[["\u3066",f.te]]},
+  {title:"volitional",rows:[["let's (\u307e\u3057\u3087\u3046)",f.mashou],["plain (\u3088\u3046/\u304a\u3046)",f.vol]]},
+  {title:"potential",rows:[["can ~",f.pot]]},
+  {title:"conditional",rows:[["\u3070",f.ba],["\u305f\u3089",f.tara]]},
+  {title:"passive / causative",rows:[["passive",f.pass],["causative",f.caus]]},
+  {title:"imperative",rows:[["command",f.imp]]},
+  {title:"desire",rows:[["want to (\u305f\u3044)",f.tai]]}];
+}
+function crowsG(secs){var d=el('<div class="crows"></div>');secs.forEach(function(sc){d.appendChild(el('<div class="cgroup">'+esc(sc.title)+'</div>'));sc.rows.forEach(function(r){d.appendChild(el('<div class="crow"><span class="ck">'+esc(r[0])+'</span><span class="cv">'+esc(r[1])+'</span></div>'));});});return d;}
+function crows(t){var d=el('<div class="crows"></div>');Object.keys(t).forEach(function(k){d.appendChild(el('<div class="crow"><span class="ck">'+esc(k)+'</span><span class="cv">'+esc(t[k])+'</span></div>'));});return d;}
+
+function rDict(main,kv,kg){
+ var sec=el('<section></section>');
+ var b1=el('<div class="block"><div class="block-h">辞書 · dictionary</div></div>');
+ b1.appendChild(el('<p class="note">Type romaji, kana, kanji, or English. Romaji converts to kana as you type. Tap an entry for related words, an example sentence, and (for verbs) conjugations.</p>'));
+ var inp=el('<input class="dict-in" placeholder="taberu / たべる / 食べる / eat">');b1.appendChild(inp);
+ var live=el('<div class="kana-live"></div>');b1.appendChild(live);var res=el('<div></div>');b1.appendChild(res);
+ function search(){var raw=inp.value.trim();var kana=romajiToKana(raw);
+  live.textContent=raw&&/[a-zA-Z]/.test(raw)?"→ "+kana:"";
+  if(!raw){res.innerHTML="";return;}var q=raw.toLowerCase();
+  var hits=kv.filter(function(v){return (v.kana&&v.kana.indexOf(kana)>-1)||(v.kana&&v.kana.indexOf(raw)>-1)||(v.kanji&&v.kanji.indexOf(raw)>-1)||(v.en&&v.en.toLowerCase().indexOf(q)>-1);}).slice(0,12);
+  res.innerHTML="";
+  if(!hits.length){res.appendChild(el('<p class="note">No match in your set. '+(S.apiKey?'':'Add an API key in 進度 to look up any word.')+'</p>'));
+   if(S.apiKey){var lb=el('<button class="btn ghost">AIで調べる · look up "'+esc(raw)+'"</button>');lb.onclick=function(){aiLookup(raw,res);};res.appendChild(lb);}return;}
+  hits.forEach(function(v){
+   var e=el('<div class="entry"></div>');
+   e.appendChild(el('<div class="entry-top"><span class="entry-k">'+esc(v.kanji||v.kana)+'</span><span class="entry-r">'+esc(v.kana)+'</span><span class="entry-pos">'+esc(v.pos)+'</span></div>'));
+   e.appendChild(el('<div class="entry-en">'+esc(v.en)+'</div>'));
+   var det=el('<div class="detail" style="display:none"></div>');
+   var ex=exampleFor(v);
+   det.appendChild(el('<div class="detail-h">used in a sentence</div>'));
+   det.appendChild(el('<div class="exs"><div class="exj">'+esc(ex.k)+'</div><div class="exr">'+esc(ex.r)+'</div><div class="exe">'+esc(ex.e)+'</div></div>'));
+   var rel=relatedFor(v,kv);
+   if(rel.length){det.appendChild(el('<div class="detail-h">related words</div>'));var ch=el('<div class="chips"></div>');
+    rel.forEach(function(rv){var c=el('<button class="chip">'+esc(rv.kanji||rv.kana)+'</button>');c.onclick=function(ev){ev.stopPropagation();inp.value=rv.kana;search();window.scrollTo(0,0);};ch.appendChild(c);});det.appendChild(ch);}
+   if(v.pos==="verb"){var tb=conjStd(v.kana,v.vtype||guessType(v.kana));if(tb){det.appendChild(el('<div class="detail-h">conjugation</div>'));det.appendChild(crowsG(tb));}}
+   e.appendChild(det);
+   e.onclick=function(){det.style.display=det.style.display==="none"?"block":"none";};
+   res.appendChild(e);});
+ }
+ inp.oninput=search;sec.appendChild(b1);
+ var b2=el('<div class="block"><div class="block-h">活用 · conjugate any verb</div></div>');
+ var crow=el('<div class="row"></div>');var cin=el('<input class="inp" value="のむ" placeholder="dictionary form">');
+ var csel=el('<select class="sel"><option value="godan">godan (う-verb)</option><option value="ichidan">ichidan (る-verb)</option><option value="irregular">irregular</option></select>');
+ csel.value=guessType("のむ");crow.appendChild(cin);crow.appendChild(csel);b2.appendChild(crow);
+ var ctb=el('<div></div>');b2.appendChild(ctb);
+ function drawc(){var t=conjStd(cin.value,csel.value);ctb.innerHTML="";if(t)ctb.appendChild(crowsG(t));else ctb.appendChild(el('<p class="note">Enter a verb or pick the type.</p>'));}
+ cin.oninput=function(){csel.value=guessType(cin.value.trim());drawc();};csel.onchange=drawc;drawc();sec.appendChild(b2);
+ var b3=el('<div class="block"><div class="block-h">文法 · Genki I grammar (through L'+S.lesson+')</div></div>');
+ b3.appendChild(el('<p class="note">Tap any point for a short explanation and notable irregularities.</p>'));
+ var ul=el('<ul class="glist"></ul>');var lastL=0;
+ kg.forEach(function(g){if(g.lesson!==lastL){lastL=g.lesson;ul.appendChild(el('<div class="glesson">Lesson '+g.lesson+'</div>'));}
+  var li=el('<li class="gitem"></li>');
+  li.appendChild(el('<div class="gitem-top"><span class="gp">'+esc(g.p)+'</span><span class="gg">'+esc(g.g)+'</span>'+(g.t?'<span class="gt">drill</span>':'')+'</div>'));
+  var x=el('<div class="gx" style="display:none">'+esc(g.x||"")+'</div>');li.appendChild(x);
+  li.onclick=function(){x.style.display=x.style.display==="none"?"block":"none";};
+  ul.appendChild(li);});
+ b3.appendChild(ul);sec.appendChild(b3);
+ main.appendChild(sec);
+}
+async function aiLookup(word,res){res.innerHTML='<p class="note">…</p>';try{var raw=await callAI(S.apiKey,"For the Japanese or English term below, give the standard Japanese (kanji + kana), a one-line English meaning, and one short example sentence with translation. Plain text, under 70 words.\n\nTerm: "+word);res.innerHTML='<div class="out"><p>'+esc(raw)+'</p></div>';}catch(e){res.innerHTML='<div class="err">Lookup failed.</div>';}}
+
+function rNotes(main){
+ var sec=el('<section></section>');
+ var b1=el('<div class="block"><div class="block-h">メモ · mnemonic + tip</div></div>');
+ var row=el('<div class="row"></div>');var inp=el('<input class="inp" placeholder="a word or grammar point (e.g. 〜てもいいです)">');
+ var btn=el('<button class="btn">調べる</button>');row.appendChild(inp);row.appendChild(btn);b1.appendChild(row);var out=el('<div></div>');b1.appendChild(out);
+ if(!S.apiKey)b1.appendChild(el('<p class="note">Mnemonics use AI. Add a key in 進度 → settings, or just save your own notes below.</p>'));
+ btn.onclick=async function(){if(!inp.value.trim())return;if(!S.apiKey){out.innerHTML='<div class="err">No API key set (進度 → settings).</div>';return;}
+  btn.disabled=true;btn.textContent="…";out.innerHTML="";
+  try{var raw=await callAI(S.apiKey,"You help a Genki-level learner. For this word or grammar point, give a one-line meaning, a short memorable mnemonic, and one usage tip. Under 90 words, plain sentences, no headers.\n\nItem: "+inp.value.trim());
+   var q=inp.value.trim();var o=el('<div class="out"><p>'+esc(raw)+'</p></div>');var sv=el('<button class="btn ghost">保存 · save</button>');
+   sv.onclick=function(){S.notes.unshift({id:Date.now(),title:q,body:raw});commit();render();};o.appendChild(sv);out.appendChild(o);
+  }catch(e){out.innerHTML='<div class="err">Request failed.</div>';}btn.disabled=false;btn.textContent="調べる";};
+ sec.appendChild(b1);
+ var b3=el('<div class="block"><div class="block-h">手書きメモ · your note</div></div>');
+ var mt=el('<input class="inp" placeholder="title" style="margin-bottom:8px">');b3.appendChild(mt);
+ var mb=el('<textarea class="ta" rows="3" placeholder="write anything"></textarea>');b3.appendChild(mb);
+ var madd=el('<button class="btn ghost">保存 · save</button>');madd.onclick=function(){if(!mt.value.trim()&&!mb.value.trim())return;S.notes.unshift({id:Date.now(),title:mt.value.trim()||"(untitled)",body:mb.value.trim()});commit();render();};b3.appendChild(madd);sec.appendChild(b3);
+ if(S.notes.length){var b2=el('<div class="block"><div class="block-h">保存したメモ</div></div>');var ul=el('<ul class="saved"></ul>');
+  S.notes.forEach(function(n){var li=el('<li><div class="saved-t">'+esc(n.title)+'</div><div class="saved-b">'+esc(n.body)+'</div></li>');var x=el('<button class="x">×</button>');x.onclick=function(){S.notes=S.notes.filter(function(z){return z.id!==n.id;});commit();render();};li.appendChild(x);ul.appendChild(li);});
+  b2.appendChild(ul);sec.appendChild(b2);}
+ main.appendChild(sec);
+}
+
+render();
+(function(){if(typeof supaSession==="function")supaSession().then(function(u){if(u)supaPull();}).catch(function(){});})();
+</script>
+</body>
+</html>
